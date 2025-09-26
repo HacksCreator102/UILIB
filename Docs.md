@@ -10,7 +10,7 @@ A Roblox UI library with old-school style, including tabs, animations, minimize 
 Load the library:
 
 ```lua
-local UILib = loadstring(game:HttpGet("https://example.com/"))()
+local UILib = loadstring(game:HttpGet("[https://example.com/](https://raw.githubusercontent.com/HacksCreator102/UILIB/refs/heads/main/source.lua)"))()
 ```
 
 - **Window Creation**
