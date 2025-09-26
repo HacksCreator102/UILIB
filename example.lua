@@ -1,5 +1,5 @@
 -- Load the UI Library
-local UILib = loadstring(game:HttpGet("https://example.com/"))()
+local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HacksCreator102/UILIB/refs/heads/main/source.lua"))()
 
 -- Create Window
 local Window = UILib:CreateWindow("My Script Hub", UDim2.new(0,600,0,400))
