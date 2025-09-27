@@ -44,7 +44,7 @@ local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HacksCr
 ## Example Usage
 
 ```lua
-local UILib = require(path_to_UILib)
+local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HacksCreator102/UILIB/refs/heads/main/source.lua"))()
 
 local Window = UILib:CreateWindow({Title = "My Script"})
 
