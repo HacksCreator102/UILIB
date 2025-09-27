@@ -1,7 +1,7 @@
-# AdvancedScripter UI Library v6.0
+# AdvancedScripter UI Library v7.1
 
-**Description:**  
-A Roblox UI library with old-school style, including tabs, animations, minimize functionality, stackable notifications, and unload confirmation. Version 6.0.
+**Description:**
+A modern Roblox UI library with animated tabs, draggable windows, stackable notifications, and a sleek dark theme. Includes all common UI components: buttons, toggles, sliders, dropdowns, textboxes, and unload confirmation.
 
 ---
 
@@ -10,22 +10,25 @@ A Roblox UI library with old-school style, including tabs, animations, minimize 
 Load the library:
 
 ```lua
-local UILib = loadstring(game:HttpGet("[https://example.com/](https://raw.githubusercontent.com/HacksCreator102/UILIB/refs/heads/main/source.lua)"))()
+local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HacksCreator102/UILIB/refs/heads/main/source.lua"))()
 ```
 
-- **Window Creation**
+* **Window Creation**
 
 ```lua
-local Window = UILib:CreateWindow({Title = "My Script", Size = UDim2.new(0, 500, 0, 350)})
+local Window = UILib:CreateWindow({
+    Title = "My Script",
+    Size = UDim2.new(0, 500, 0, 350)
+})
 ```
 
-- **Tabs**
+* **Tabs**
 
 ```lua
 local Tab = Window:CreateTab("Main")
 ```
 
-- **Buttons**
+* **Buttons**
 
 ```lua
 Tab:CreateButton("Click Me", function()
@@ -33,7 +36,7 @@ Tab:CreateButton("Click Me", function()
 end)
 ```
 
-- **Toggles**
+* **Toggles**
 
 ```lua
 Tab:CreateToggle("Toggle Option", true, function(state)
@@ -41,7 +44,7 @@ Tab:CreateToggle("Toggle Option", true, function(state)
 end)
 ```
 
-- **Sliders**
+* **Sliders**
 
 ```lua
 Tab:CreateSlider("Volume", 0, 100, 50, function(value)
@@ -49,7 +52,7 @@ Tab:CreateSlider("Volume", 0, 100, 50, function(value)
 end)
 ```
 
-- **Dropdowns**
+* **Dropdowns**
 
 ```lua
 Tab:CreateDropdown("Choose Option", {"Option1", "Option2"}, function(selected)
@@ -57,15 +60,15 @@ Tab:CreateDropdown("Choose Option", {"Option1", "Option2"}, function(selected)
 end)
 ```
 
-- **Textboxes**
+* **Textboxes**
 
 ```lua
-Tab:CreateTextbox("Enter Text", "Placeholder...", function(text)
+Tab:CreateTextbox("Enter Text", "Type here...", function(text)
     print("Text entered:", text)
 end)
 ```
 
-- **Notifications**
+* **Notifications**
 
 ```lua
 Window:Notify("Title", "Message", 3) -- Duration optional, default 3 seconds
@@ -73,21 +76,31 @@ Window:Notify("Title", "Message", 3) -- Duration optional, default 3 seconds
 
 ---
 
+## Advanced Features
+
+* **Modern Dark Theme** with rounded corners and smooth animations.
+* **Animated Tab Switching**: only one tab visible at a time, buttons animate color on hover.
+* **Animated Dropdowns and Sliders**: sliders update in real-time, dropdowns expand/collapse smoothly.
+* **Draggable Window** with **Unload Confirmation Popup** that animates in/out.
+* **Stackable Notifications**: multiple notifications appear without overlap, fade in/out automatically.
+
+---
+
 ## Installation
 
-1. Place `README.md` or `UILib.lua` in your project directory.
+1. Place `UILib.lua` in your project directory (or use the raw GitHub link).
 2. Require the library in a LocalScript:
 
 ```lua
-local UILib = require(path.to.UILib)
-local Window = UILib:CreateWindow({Title="My Script"})
+local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HacksCreator102/UILIB/refs/heads/main/source.lua"))()
+local Window = UILib:CreateWindow({Title = "My Script"})
 ```
 
 ---
 
 ## Notes
 
-- Fully draggable windows with mini-button for minimized state.  
-- Tabs support scrollable layouts and multiple UI components.  
-- Notifications automatically stack at the bottom-right of the screen.  
-- Compatible with Roblox LocalScripts and designed for ease of use.
+* Fully animated and responsive for a polished UI experience.
+* Tabs, sliders, toggles, and dropdowns are all **interactive with smooth animations**.
+* Notifications fade in/out and stack at the bottom-right corner.
+* Designed for **ease of use** in Roblox LocalScripts.
