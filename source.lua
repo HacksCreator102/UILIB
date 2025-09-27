@@ -1,4 +1,4 @@
--- AdvancedScripter UI Library (with Unload Confirmation)
+-- AdvancedScripter UI Library (with Unload Confirmation + Fixed Tabs)
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
@@ -63,6 +63,12 @@ function UILib:CreateWindow(arg1, arg2)
 	TabContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 	TabContainer.Parent = MainFrame
 
+	local TabLayout = Instance.new("UIListLayout")
+	TabLayout.FillDirection = Enum.FillDirection.Vertical
+	TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	TabLayout.Padding = UDim.new(0, 2)
+	TabLayout.Parent = TabContainer
+
 	local ContentContainer = Instance.new("Frame")
 	ContentContainer.Size = UDim2.new(1, -120, 1, -30)
 	ContentContainer.Position = UDim2.new(0, 120, 0, 30)
@@ -121,11 +127,14 @@ function UILib:CreateWindow(arg1, arg2)
 	end)
 
 	-- Tab System
+	local activePage, activeButton
+
 	function window:CreateTab(arg)
 		local tabName = typeof(arg) == "table" and arg.Name or arg
 		local tab = {}
+
 		local Button = Instance.new("TextButton")
-		Button.Size = UDim2.new(1, 0, 0, 30)
+		Button.Size = UDim2.new(1, -4, 0, 30)
 		Button.Text = tabName
 		Button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 		Button.TextColor3 = Color3.new(1,1,1)
@@ -138,13 +147,31 @@ function UILib:CreateWindow(arg1, arg2)
 		Page.ScrollBarThickness = 6
 		Page.Parent = ContentContainer
 
+		local PageLayout = Instance.new("UIListLayout")
+		PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		PageLayout.Padding = UDim.new(0, 5)
+		PageLayout.Parent = Page
+
 		Button.MouseButton1Click:Connect(function()
-			for _, child in ipairs(ContentContainer:GetChildren()) do
-				child.Visible = false
-			end
+			if activePage then activePage.Visible = false end
+			if activeButton then activeButton.BackgroundColor3 = Color3.fromRGB(60,60,60) end
+
 			Page.Visible = true
+			activePage = Page
+
+			Button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+			activeButton = Button
 		end)
 
+		-- Auto-select first tab
+		if not activePage then
+			Page.Visible = true
+			activePage = Page
+			Button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+			activeButton = Button
+		end
+
+		-- UI Elements
 		function tab:CreateButton(arg, callback)
 			local text = typeof(arg) == "table" and arg.Text or arg
 			local Btn = Instance.new("TextButton")
@@ -183,7 +210,6 @@ function UILib:CreateWindow(arg1, arg2)
 			SliderLabel.BackgroundTransparency = 1
 			SliderLabel.Parent = Page
 			local value = default
-			-- Simplified: call directly
 			if callback then callback(value) end
 		end
 
