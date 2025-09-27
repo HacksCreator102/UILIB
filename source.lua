@@ -1,4 +1,4 @@
--- ===== Full Script: AdvancedScripter UI + Persistent Settings =====
+-- ===== Full Script: AdvancedScripter UI + Persistent Settings + Device Scaling =====
 -- Services
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -45,11 +45,21 @@ end)
 
 -- ===== AdvancedScripter UI Library =====
 local UILib = {}
+local activeNotifications = {}
 
 function UILib:CreateWindow(arg1,arg2)
     local title = typeof(arg1)=="table" and arg1.Title or arg1 or "Window"
     local defaultSize = typeof(arg1)=="table" and arg1.Size or arg2 or UDim2.new(0,400,0,300)
     local window = {}
+
+    -- Device detection
+    local screenSize = PlayerGui:GetScreenSize()
+    local isSmallDevice = screenSize.X <= 1024 or screenSize.Y <= 768
+    local SCALE_FACTOR = isSmallDevice and 0.8 or 1
+
+    local MIN_WIDTH = 400 * SCALE_FACTOR
+    local MIN_HEIGHT = 300 * SCALE_FACTOR
+    local TAB_WIDTH = 120 * SCALE_FACTOR
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Parent = PlayerGui
@@ -58,8 +68,8 @@ function UILib:CreateWindow(arg1,arg2)
     local MainFrame = Instance.new("Frame")
     MainFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
     MainFrame.BorderSizePixel = 0
-    MainFrame.Position = UDim2.new(0.5,-defaultSize.X.Offset/2,0.5,-defaultSize.Y.Offset/2)
-    MainFrame.Size = defaultSize
+    MainFrame.Position = UDim2.new(0.5,-defaultSize.X.Offset* SCALE_FACTOR/2,0.5,-defaultSize.Y.Offset* SCALE_FACTOR/2)
+    MainFrame.Size = UDim2.new(0,defaultSize.X.Offset* SCALE_FACTOR,0,defaultSize.Y.Offset* SCALE_FACTOR)
     MainFrame.Active = true
     MainFrame.Draggable = true
     MainFrame.Parent = ScreenGui
@@ -69,7 +79,7 @@ function UILib:CreateWindow(arg1,arg2)
 
     -- Title Bar
     local TitleBar = Instance.new("Frame")
-    TitleBar.Size = UDim2.new(1,0,0,30)
+    TitleBar.Size = UDim2.new(1,0,0,30* SCALE_FACTOR)
     TitleBar.BackgroundColor3 = Color3.fromRGB(45,45,45)
     TitleBar.Parent = MainFrame
 
@@ -79,26 +89,31 @@ function UILib:CreateWindow(arg1,arg2)
     TitleLabel.BackgroundTransparency = 1
     TitleLabel.Text = title
     TitleLabel.Font = Enum.Font.SourceSansBold
-    TitleLabel.TextSize = 18
+    TitleLabel.TextSize = 18 * SCALE_FACTOR
     TitleLabel.TextColor3 = Color3.fromRGB(255,255,255)
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     TitleLabel.Parent = TitleBar
 
     local CloseButton = Instance.new("TextButton")
-    CloseButton.Size = UDim2.new(0,30,1,0)
-    CloseButton.Position = UDim2.new(1,-30,0,0)
+    CloseButton.Size = UDim2.new(0,30* SCALE_FACTOR,1,0)
+    CloseButton.Position = UDim2.new(1,-30* SCALE_FACTOR,0,0)
     CloseButton.BackgroundColor3 = Color3.fromRGB(200,50,50)
     CloseButton.Text = "X"
+    CloseButton.TextSize = 16 * SCALE_FACTOR
     CloseButton.TextColor3 = Color3.new(1,1,1)
     CloseButton.Parent = TitleBar
     local CloseCorner = Instance.new("UICorner")
     CloseCorner.CornerRadius = UDim.new(0,5)
     CloseCorner.Parent = CloseButton
 
+    CloseButton.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
+
     -- Tab Container
     local TabContainer = Instance.new("Frame")
-    TabContainer.Size = UDim2.new(0,120,1,-30)
-    TabContainer.Position = UDim2.new(0,0,0,30)
+    TabContainer.Size = UDim2.new(0,TAB_WIDTH,1,-30* SCALE_FACTOR)
+    TabContainer.Position = UDim2.new(0,0,0,30* SCALE_FACTOR)
     TabContainer.BackgroundColor3 = Color3.fromRGB(40,40,40)
     TabContainer.Parent = MainFrame
     local TabLayout = Instance.new("UIListLayout")
@@ -109,8 +124,8 @@ function UILib:CreateWindow(arg1,arg2)
 
     -- Content Container
     local ContentContainer = Instance.new("Frame")
-    ContentContainer.Size = UDim2.new(1,-120,1,-30)
-    ContentContainer.Position = UDim2.new(0,120,0,30)
+    ContentContainer.Size = UDim2.new(1,-TAB_WIDTH,1,-30* SCALE_FACTOR)
+    ContentContainer.Position = UDim2.new(0,TAB_WIDTH,0,30* SCALE_FACTOR)
     ContentContainer.BackgroundTransparency = 1
     ContentContainer.Parent = MainFrame
 
@@ -119,10 +134,12 @@ function UILib:CreateWindow(arg1,arg2)
     ContentLayout.Padding = UDim.new(0,5)
     ContentLayout.Parent = ContentContainer
 
-    -- Auto-resize
+    -- Auto-resize window based on content
     ContentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
         local contentSize = ContentLayout.AbsoluteContentSize
-        MainFrame.Size = UDim2.new(0,math.max(400,contentSize.X+140),0,math.max(300,contentSize.Y+30))
+        local newWidth = math.max(MIN_WIDTH, contentSize.X + TAB_WIDTH + 20)
+        local newHeight = math.max(MIN_HEIGHT, contentSize.Y + 30 + 20)
+        MainFrame.Size = UDim2.new(0,newWidth,0,newHeight)
     end)
 
     -- Tabs
@@ -131,11 +148,12 @@ function UILib:CreateWindow(arg1,arg2)
         local tab = {}
 
         local Button = Instance.new("TextButton")
-        local size = TextService:GetTextSize(tabName,18,Enum.Font.SourceSansBold,Vector2.new(1000,30))
-        Button.Size = UDim2.new(0,size.X+20,0,30)
+        local size = TextService:GetTextSize(tabName,18* SCALE_FACTOR,Enum.Font.SourceSansBold,Vector2.new(1000,30))
+        Button.Size = UDim2.new(0,size.X+20,0,30* SCALE_FACTOR)
         Button.Text = tabName
         Button.BackgroundColor3 = Color3.fromRGB(60,60,60)
         Button.TextColor3 = Color3.new(1,1,1)
+        Button.TextSize = 16 * SCALE_FACTOR
         Button.Parent = TabContainer
         local BtnCorner = Instance.new("UICorner")
         BtnCorner.CornerRadius = UDim.new(0,5)
@@ -173,10 +191,11 @@ function UILib:CreateWindow(arg1,arg2)
         -- ===== UI Components =====
         function tab:CreateButton(text,callback)
             local Btn = Instance.new("TextButton")
-            Btn.Size = UDim2.new(1,-10,0,30)
+            Btn.Size = UDim2.new(1,-10,0,30* SCALE_FACTOR)
             Btn.Text = text
             Btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
             Btn.TextColor3 = Color3.new(1,1,1)
+            Btn.TextSize = 14 * SCALE_FACTOR
             Btn.Parent = Page
             local Corner = Instance.new("UICorner")
             Corner.CornerRadius = UDim.new(0,5)
@@ -189,10 +208,11 @@ function UILib:CreateWindow(arg1,arg2)
         function tab:CreateToggle(text,key,default)
             local state = settings[key] ~= nil and settings[key] or default
             local Toggle = Instance.new("TextButton")
-            Toggle.Size = UDim2.new(1,-10,0,30)
+            Toggle.Size = UDim2.new(1,-10,0,30* SCALE_FACTOR)
             Toggle.Text = text..": "..(state and "ON" or "OFF")
             Toggle.BackgroundColor3 = Color3.fromRGB(70,70,70)
             Toggle.TextColor3 = Color3.new(1,1,1)
+            Toggle.TextSize = 14 * SCALE_FACTOR
             Toggle.Parent = Page
             local Corner = Instance.new("UICorner")
             Corner.CornerRadius = UDim.new(0,5)
@@ -208,10 +228,11 @@ function UILib:CreateWindow(arg1,arg2)
         function tab:CreateKeybind(text,key)
             local value = settings[key] or "F"
             local Btn = Instance.new("TextButton")
-            Btn.Size = UDim2.new(1,-10,0,30)
+            Btn.Size = UDim2.new(1,-10,0,30* SCALE_FACTOR)
             Btn.Text = text..": "..value
             Btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
             Btn.TextColor3 = Color3.new(1,1,1)
+            Btn.TextSize = 14 * SCALE_FACTOR
             Btn.Parent = Page
             local Corner = Instance.new("UICorner")
             Corner.CornerRadius = UDim.new(0,5)
@@ -234,16 +255,16 @@ function UILib:CreateWindow(arg1,arg2)
         function tab:CreateSlider(text,key,min,max,default)
             local value = settings[key] or default
             local SliderLabel = Instance.new("TextLabel")
-            SliderLabel.Size = UDim2.new(1,-10,0,30)
+            SliderLabel.Size = UDim2.new(1,-10,0,30* SCALE_FACTOR)
             SliderLabel.BackgroundTransparency = 1
             SliderLabel.TextColor3 = Color3.new(1,1,1)
             SliderLabel.Font = Enum.Font.SourceSans
-            SliderLabel.TextSize = 14
+            SliderLabel.TextSize = 14 * SCALE_FACTOR
             SliderLabel.Text = text..": "..value
             SliderLabel.Parent = Page
             local Slider = Instance.new("TextButton")
-            Slider.Size = UDim2.new(1,-10,0,20)
-            Slider.Position = UDim2.new(0,0,0,30)
+            Slider.Size = UDim2.new(1,-10,0,20* SCALE_FACTOR)
+            Slider.Position = UDim2.new(0,0,0,30* SCALE_FACTOR)
             Slider.BackgroundColor3 = Color3.fromRGB(80,80,80)
             Slider.Text = ""
             Slider.Parent = Page
@@ -269,10 +290,11 @@ function UILib:CreateWindow(arg1,arg2)
         function tab:CreateDropdown(text,key,options)
             local value = settings[key] or options[1]
             local Dropdown = Instance.new("TextButton")
-            Dropdown.Size = UDim2.new(1,-10,0,30)
+            Dropdown.Size = UDim2.new(1,-10,0,30* SCALE_FACTOR)
             Dropdown.Text = text..": "..value.." ▼"
             Dropdown.BackgroundColor3 = Color3.fromRGB(70,70,70)
             Dropdown.TextColor3 = Color3.new(1,1,1)
+            Dropdown.TextSize = 14 * SCALE_FACTOR
             Dropdown.Parent = Page
             local Corner = Instance.new("UICorner")
             Corner.CornerRadius = UDim.new(0,5)
@@ -291,10 +313,11 @@ function UILib:CreateWindow(arg1,arg2)
         function tab:CreateTextbox(text,key)
             local value = settings[key] or ""
             local Box = Instance.new("TextBox")
-            Box.Size = UDim2.new(1,-10,0,30)
+            Box.Size = UDim2.new(1,-10,0,30* SCALE_FACTOR)
             Box.PlaceholderText = text
             Box.BackgroundColor3 = Color3.fromRGB(80,80,80)
             Box.TextColor3 = Color3.new(1,1,1)
+            Box.TextSize = 14 * SCALE_FACTOR
             Box.Text = value
             Box.Parent = Page
             local Corner = Instance.new("UICorner")
@@ -314,8 +337,8 @@ function UILib:CreateWindow(arg1,arg2)
         duration = duration or 3
         local Notification = Instance.new("Frame")
         Notification.BackgroundColor3 = Color3.fromRGB(35,35,35)
-        Notification.Size = UDim2.new(0,250,0,50)
-        Notification.Position = UDim2.new(1,-260,1,-(#activeNotifications*90)-90)
+        Notification.Size = UDim2.new(0,250* SCALE_FACTOR,0,50* SCALE_FACTOR)
+        Notification.Position = UDim2.new(1,-260* SCALE_FACTOR,1,-(#activeNotifications*60* SCALE_FACTOR)-60)
         Notification.Parent = ScreenGui
         Notification.ZIndex = 10
         local Corner = Instance.new("UICorner")
@@ -323,23 +346,23 @@ function UILib:CreateWindow(arg1,arg2)
         Corner.Parent = Notification
 
         local Title = Instance.new("TextLabel")
-        Title.Size = UDim2.new(1,-10,0,20)
+        Title.Size = UDim2.new(1,-10,0,20* SCALE_FACTOR)
         Title.Position = UDim2.new(0,5,0,5)
         Title.BackgroundTransparency = 1
         Title.Text = title
         Title.TextColor3 = Color3.new(1,1,1)
         Title.Font = Enum.Font.SourceSansBold
-        Title.TextSize = 16
+        Title.TextSize = 16* SCALE_FACTOR
         Title.Parent = Notification
 
         local Msg = Instance.new("TextLabel")
-        Msg.Size = UDim2.new(1,-10,1,-30)
-        Msg.Position = UDim2.new(0,5,0,25)
+        Msg.Size = UDim2.new(1,-10,1,-30* SCALE_FACTOR)
+        Msg.Position = UDim2.new(0,5,0,25* SCALE_FACTOR)
         Msg.BackgroundTransparency = 1
         Msg.Text = msg
         Msg.TextColor3 = Color3.new(1,1,1)
         Msg.Font = Enum.Font.SourceSans
-        Msg.TextSize = 14
+        Msg.TextSize = 14* SCALE_FACTOR
         Msg.TextWrapped = true
         Msg.Parent = Notification
 
@@ -350,6 +373,9 @@ function UILib:CreateWindow(arg1,arg2)
             task.delay(0.3,function()
                 Notification:Destroy()
                 table.remove(activeNotifications,1)
+                for i, notif in ipairs(activeNotifications) do
+                    notif.Position = UDim2.new(1,-260* SCALE_FACTOR,1,-(i*60* SCALE_FACTOR)-60)
+                end
             end)
         end)
     end
