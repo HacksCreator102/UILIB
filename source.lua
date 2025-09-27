@@ -1,19 +1,67 @@
--- AdvancedScripter UI Library (Auto-Size + Animated + Modern)
+-- AdvancedScripter UI Library (Auto-Size + Animated + Modern + Settings Manager)
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local TextService = game:GetService("TextService")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 
+-- ===== Executor Settings Manager =====
+local writefile = writefile or write or function() error("writefile not supported") end
+local readfile  = readfile  or read  or function() error("readfile not supported") end
+local isfile    = isfile    or fileexists or function() return false end
+local makefolder = makefolder or make_dir or function() end
+
+local SETTINGS_FOLDER = "99nightsintheforest_madeby_ShadowDev"
+local SETTINGS_FILE   = SETTINGS_FOLDER .. "/settings.json"
+local Creator_FILE    = SETTINGS_FOLDER .. "/Creator.txt"
+
+local defaultSettings = {
+    keybind = "F",
+    antiafk = false,
+}
+
+pcall(makefolder, SETTINGS_FOLDER)
+
+local function saveSettings(settings)
+    local json = HttpService:JSONEncode(settings)
+    local ok, err = pcall(function() writefile(SETTINGS_FILE, json) end)
+    if not ok then warn("Failed to save settings: "..tostring(err)) end
+end
+
+pcall(function()
+    writefile(Creator_FILE, "Script made by ShadowDev\nDiscord: ShadowDev\nJoin Discord: https://discord.gg/3T8TYfpFTF\nMade with love <3")
+end)
+
+local function loadSettings()
+    if isfile(SETTINGS_FILE) then
+        local ok, data = pcall(readfile, SETTINGS_FILE)
+        if ok then
+            local success, parsed = pcall(HttpService.JSONDecode, HttpService, data)
+            if success then return parsed end
+        end
+    end
+    return defaultSettings
+end
+
+local settings = loadSettings()
+
+-- ===== UILib =====
 local UILib = {}
 local activeNotifications = {}
+
+function UILib:GetSettings()
+    return settings
+end
 
 function UILib:CreateWindow(arg1, arg2)
     local title = typeof(arg1) == "table" and arg1.Title or arg1 or "Window"
     local defaultSize = typeof(arg1) == "table" and arg1.Size or arg2 or UDim2.new(0, 400, 0, 300)
 
     local window = {}
-    local player = game.Players.LocalPlayer
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Parent = player:WaitForChild("PlayerGui")
+    ScreenGui.Parent = PlayerGui
 
     -- Main Window
     local MainFrame = Instance.new("Frame")
@@ -85,66 +133,10 @@ function UILib:CreateWindow(arg1, arg2)
         MainFrame.Size = UDim2.new(0, math.max(400, contentSize.X + 140), 0, math.max(300, contentSize.Y + 30))
     end)
 
-    -- Unload Confirmation Popup
-    local function showUnloadConfirm()
-        local ConfirmFrame = Instance.new("Frame")
-        ConfirmFrame.Size = UDim2.new(0, 250, 0, 120)
-        ConfirmFrame.Position = UDim2.new(0.5, -125, 0.5, -60)
-        ConfirmFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-        ConfirmFrame.Parent = MainFrame
-        ConfirmFrame.ZIndex = 10
-        local ConfirmCorner = Instance.new("UICorner")
-        ConfirmCorner.CornerRadius = UDim.new(0,8)
-        ConfirmCorner.Parent = ConfirmFrame
-
-        local ConfirmLabel = Instance.new("TextLabel")
-        ConfirmLabel.Size = UDim2.new(1, -20, 0, 60)
-        ConfirmLabel.Position = UDim2.new(0, 10, 0, 10)
-        ConfirmLabel.BackgroundTransparency = 1
-        ConfirmLabel.Text = "Do you really want to unload?"
-        ConfirmLabel.Font = Enum.Font.SourceSansBold
-        ConfirmLabel.TextSize = 18
-        ConfirmLabel.TextColor3 = Color3.new(1,1,1)
-        ConfirmLabel.ZIndex = 10
-        ConfirmLabel.Parent = ConfirmFrame
-
-        local YesButton = Instance.new("TextButton")
-        YesButton.Size = UDim2.new(0.5, -15, 0, 30)
-        YesButton.Position = UDim2.new(0, 10, 1, -40)
-        YesButton.Text = "Yes"
-        YesButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-        YesButton.TextColor3 = Color3.new(1,1,1)
-        YesButton.ZIndex = 10
-        YesButton.Parent = ConfirmFrame
-        local YesCorner = Instance.new("UICorner")
-        YesCorner.CornerRadius = UDim.new(0,5)
-        YesCorner.Parent = YesButton
-
-        local NoButton = Instance.new("TextButton")
-        NoButton.Size = UDim2.new(0.5, -15, 0, 30)
-        NoButton.Position = UDim2.new(0.5, 5, 1, -40)
-        NoButton.Text = "No"
-        NoButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-        NoButton.TextColor3 = Color3.new(1,1,1)
-        NoButton.ZIndex = 10
-        NoButton.Parent = ConfirmFrame
-        local NoCorner = Instance.new("UICorner")
-        NoCorner.CornerRadius = UDim.new(0,5)
-        NoCorner.Parent = NoButton
-
-        YesButton.MouseButton1Click:Connect(function()
-            ScreenGui:Destroy()
-        end)
-
-        NoButton.MouseButton1Click:Connect(function()
-            TweenService:Create(ConfirmFrame, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
-            task.delay(0.2, function()
-                ConfirmFrame:Destroy()
-            end)
-        end)
-    end
-
-    CloseButton.MouseButton1Click:Connect(showUnloadConfirm)
+    -- Close button unload
+    CloseButton.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
 
     -- Tab System
     local activePage, activeButton
@@ -272,6 +264,7 @@ function UILib:CreateWindow(arg1, arg2)
         return tab
     end
 
+    -- Notifications
     function window:Notify(title,msg,duration)
         local Notification = Instance.new("Frame")
         Notification.BackgroundColor3 = Color3.fromRGB(35,35,35)
@@ -314,6 +307,13 @@ function UILib:CreateWindow(arg1, arg2)
             end)
         end)
     end
+
+    -- Expose UI elements & settings
+    window.ScreenGui = ScreenGui
+    window.MainFrame = MainFrame
+    window.ContentContainer = ContentContainer
+    window.Settings = settings
+    window.SaveSettings = saveSettings
 
     return window
 end
