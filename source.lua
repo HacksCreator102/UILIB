@@ -1,4 +1,4 @@
--- AdvancedScripter UI Library (with Unload Confirmation + Fixed Tabs)
+-- AdvancedScripter UI Library (Fixed Tabs + UIListLayout + Unload Confirmation)
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
@@ -63,6 +63,7 @@ function UILib:CreateWindow(arg1, arg2)
 	TabContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 	TabContainer.Parent = MainFrame
 
+	-- UIListLayout for stacked tab buttons
 	local TabLayout = Instance.new("UIListLayout")
 	TabLayout.FillDirection = Enum.FillDirection.Vertical
 	TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -171,7 +172,6 @@ function UILib:CreateWindow(arg1, arg2)
 			activeButton = Button
 		end
 
-		-- UI Elements
 		function tab:CreateButton(arg, callback)
 			local text = typeof(arg) == "table" and arg.Text or arg
 			local Btn = Instance.new("TextButton")
@@ -180,6 +180,7 @@ function UILib:CreateWindow(arg1, arg2)
 			Btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
 			Btn.TextColor3 = Color3.new(1,1,1)
 			Btn.Parent = Page
+			Btn.LayoutOrder = #Page:GetChildren() -- Keep stacking in order
 			Btn.MouseButton1Click:Connect(function()
 				if callback then callback() end
 			end)
@@ -193,6 +194,7 @@ function UILib:CreateWindow(arg1, arg2)
 			Toggle.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
 			Toggle.TextColor3 = Color3.new(1,1,1)
 			Toggle.Parent = Page
+			Toggle.LayoutOrder = #Page:GetChildren()
 			local state = default
 			Toggle.MouseButton1Click:Connect(function()
 				state = not state
@@ -209,6 +211,7 @@ function UILib:CreateWindow(arg1, arg2)
 			SliderLabel.TextColor3 = Color3.new(1,1,1)
 			SliderLabel.BackgroundTransparency = 1
 			SliderLabel.Parent = Page
+			SliderLabel.LayoutOrder = #Page:GetChildren()
 			local value = default
 			if callback then callback(value) end
 		end
@@ -221,6 +224,7 @@ function UILib:CreateWindow(arg1, arg2)
 			Dropdown.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
 			Dropdown.TextColor3 = Color3.new(1,1,1)
 			Dropdown.Parent = Page
+			Dropdown.LayoutOrder = #Page:GetChildren()
 			Dropdown.MouseButton1Click:Connect(function()
 				if callback then callback(options[1]) end
 			end)
@@ -235,6 +239,7 @@ function UILib:CreateWindow(arg1, arg2)
 			Box.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 			Box.TextColor3 = Color3.new(1,1,1)
 			Box.Parent = Page
+			Box.LayoutOrder = #Page:GetChildren()
 			Box.FocusLost:Connect(function()
 				if callback then callback(Box.Text) end
 			end)
