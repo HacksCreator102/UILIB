@@ -358,7 +358,7 @@ function UILib:CreateWindow(arg1, arg2)
 		Notification.Position = UDim2.new(1,-260,1,-(#activeNotifications*90)-90)
 		Notification.BackgroundColor3 = Color3.fromRGB(35,35,35)
 		Notification.Parent = ScreenGui
-		Notification.ZIndex = 10
+		Notification.ZIndex = 1
 		local corner = Instance.new("UICorner")
 		corner.CornerRadius = UDim.new(0,8)
 		corner.Parent = Notification
