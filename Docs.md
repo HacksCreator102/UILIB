@@ -1,7 +1,7 @@
 # AdvancedScripter UI Library v7.1
 
 **Description:**
-A modern Roblox UI library with animated tabs, draggable windows, stackable notifications, and a sleek dark theme. Includes all common UI components: buttons, toggles, sliders, dropdowns, textboxes, and unload confirmation.
+A modern Roblox UI library with auto-sizing windows, animated tabs, draggable functionality, stackable notifications, and a sleek dark theme. All UI components auto-adjust their size based on content.
 
 ---
 
@@ -16,10 +16,7 @@ local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HacksCr
 * **Window Creation**
 
 ```lua
-local Window = UILib:CreateWindow({
-    Title = "My Script",
-    Size = UDim2.new(0, 500, 0, 350)
-})
+local Window = UILib:CreateWindow({Title = "My Script"})
 ```
 
 * **Tabs**
@@ -68,7 +65,7 @@ Tab:CreateTextbox("Enter Text", "Type here...", function(text)
 end)
 ```
 
-* **Notifications**
+* **Notifications (Auto-Size)**
 
 ```lua
 Window:Notify("Title", "Message", 3) -- Duration optional, default 3 seconds
@@ -78,17 +75,18 @@ Window:Notify("Title", "Message", 3) -- Duration optional, default 3 seconds
 
 ## Advanced Features
 
-* **Modern Dark Theme** with rounded corners and smooth animations.
-* **Animated Tab Switching**: only one tab visible at a time, buttons animate color on hover.
-* **Animated Dropdowns and Sliders**: sliders update in real-time, dropdowns expand/collapse smoothly.
-* **Draggable Window** with **Unload Confirmation Popup** that animates in/out.
-* **Stackable Notifications**: multiple notifications appear without overlap, fade in/out automatically.
+* **Auto-sizing Window**: Resizes dynamically based on content inside tabs.
+* **Animated Tab Switching**: Only one tab visible at a time; smooth color transition.
+* **Auto-sizing Tabs and Components**: Buttons, toggles, sliders, dropdowns, textboxes fit content width.
+* **Stackable Notifications**: Auto-size based on text length and wrap if needed; fade in/out.
+* **Unload Confirmation Popup**: Animated and interactive.
+* **Draggable Window** with Rounded Corners and Modern Dark Theme.
 
 ---
 
 ## Installation
 
-1. Place `UILib.lua` in your project directory (or use the raw GitHub link).
+1. Place `UILib.lua` in your project directory or use the raw GitHub link.
 2. Require the library in a LocalScript:
 
 ```lua
@@ -100,7 +98,7 @@ local Window = UILib:CreateWindow({Title = "My Script"})
 
 ## Notes
 
-* Fully animated and responsive for a polished UI experience.
-* Tabs, sliders, toggles, and dropdowns are all **interactive with smooth animations**.
-* Notifications fade in/out and stack at the bottom-right corner.
+* Fully animated and responsive UI.
+* Components and notifications automatically size to fit content.
 * Designed for **ease of use** in Roblox LocalScripts.
+* Compatible with **modern dark-themed projects**.
