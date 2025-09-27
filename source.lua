@@ -1,4 +1,4 @@
--- AdvancedScripter UI Library (Fixed Tabs + UIListLayout + Unload Confirmation)
+-- AdvancedScripter UI Library (Multi-Tab + UIListLayout + Unload Confirmation)
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
@@ -63,13 +63,13 @@ function UILib:CreateWindow(arg1, arg2)
 	TabContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 	TabContainer.Parent = MainFrame
 
-	-- UIListLayout for stacked tab buttons
 	local TabLayout = Instance.new("UIListLayout")
 	TabLayout.FillDirection = Enum.FillDirection.Vertical
 	TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	TabLayout.Padding = UDim.new(0, 2)
 	TabLayout.Parent = TabContainer
 
+	-- Content Container
 	local ContentContainer = Instance.new("Frame")
 	ContentContainer.Size = UDim2.new(1, -120, 1, -30)
 	ContentContainer.Position = UDim2.new(0, 120, 0, 30)
@@ -127,9 +127,7 @@ function UILib:CreateWindow(arg1, arg2)
 		showUnloadConfirm()
 	end)
 
-	-- Tab System
-	local activePage, activeButton
-
+	-- Tab System (Multi-tab support)
 	function window:CreateTab(arg)
 		local tabName = typeof(arg) == "table" and arg.Name or arg
 		local tab = {}
@@ -153,25 +151,21 @@ function UILib:CreateWindow(arg1, arg2)
 		PageLayout.Padding = UDim.new(0, 5)
 		PageLayout.Parent = Page
 
+		local toggled = false
 		Button.MouseButton1Click:Connect(function()
-			if activePage then activePage.Visible = false end
-			if activeButton then activeButton.BackgroundColor3 = Color3.fromRGB(60,60,60) end
-
-			Page.Visible = true
-			activePage = Page
-
-			Button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-			activeButton = Button
+			toggled = not toggled
+			Page.Visible = toggled
+			Button.BackgroundColor3 = toggled and Color3.fromRGB(100, 100, 100) or Color3.fromRGB(60,60,60)
 		end)
 
-		-- Auto-select first tab
-		if not activePage then
+		-- Auto-open first tab
+		if #TabContainer:GetChildren() == 2 then
+			toggled = true
 			Page.Visible = true
-			activePage = Page
 			Button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-			activeButton = Button
 		end
 
+		-- Components
 		function tab:CreateButton(arg, callback)
 			local text = typeof(arg) == "table" and arg.Text or arg
 			local Btn = Instance.new("TextButton")
@@ -180,7 +174,7 @@ function UILib:CreateWindow(arg1, arg2)
 			Btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
 			Btn.TextColor3 = Color3.new(1,1,1)
 			Btn.Parent = Page
-			Btn.LayoutOrder = #Page:GetChildren() -- Keep stacking in order
+			Btn.LayoutOrder = #Page:GetChildren()
 			Btn.MouseButton1Click:Connect(function()
 				if callback then callback() end
 			end)
@@ -248,6 +242,7 @@ function UILib:CreateWindow(arg1, arg2)
 		return tab
 	end
 
+	-- Notifications
 	function window:Notify(title, msg, duration)
 		local Notification = Instance.new("Frame")
 		Notification.Size = UDim2.new(0, 250, 0, 80)
