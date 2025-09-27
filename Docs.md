@@ -1,104 +1,85 @@
-# AdvancedScripter UI Library v7.1
+# AdvancedScripter UI Library
 
-**Description:**
-A modern Roblox UI library with auto-sizing windows, animated tabs, draggable functionality, stackable notifications, and a sleek dark theme. All UI components auto-adjust their size based on content.
+A **modern, animated, auto-sizing UI library** for Roblox, featuring full executor settings management, notifications, tabs, and interactive UI components.
 
 ---
 
 ## Features
 
-Load the library:
+* **Executor Settings Manager**
 
-```lua
-local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HacksCreator102/UILIB/refs/heads/main/source.lua"))()
-```
+  * Load and save persistent settings (`keybind`, `antiafk`, etc.) across sessions.
+  * Automatically creates a `Creator.txt` with script credits.
+* **Window & Tabs**
 
-* **Window Creation**
+  * Draggable, animated main window.
+  * Multi-tab system with automatic active tab highlighting.
+* **Auto-Resizing**
 
-```lua
-local Window = UILib:CreateWindow({Title = "My Script"})
-```
+  * Window automatically adjusts to content size.
+* **UI Components**
 
-* **Tabs**
+  * **Buttons**
+  * **Toggles**
+  * **Sliders**
+  * **Dropdowns**
+  * **Textboxes**
+* **Notifications**
 
-```lua
-local Tab = Window:CreateTab("Main")
-```
-
-* **Buttons**
-
-```lua
-Tab:CreateButton("Click Me", function()
-    print("Button clicked!")
-end)
-```
-
-* **Toggles**
-
-```lua
-Tab:CreateToggle("Toggle Option", true, function(state)
-    print("Toggle is now", state)
-end)
-```
-
-* **Sliders**
-
-```lua
-Tab:CreateSlider("Volume", 0, 100, 50, function(value)
-    print("Slider value:", value)
-end)
-```
-
-* **Dropdowns**
-
-```lua
-Tab:CreateDropdown("Choose Option", {"Option1", "Option2"}, function(selected)
-    print("Selected:", selected)
-end)
-```
-
-* **Textboxes**
-
-```lua
-Tab:CreateTextbox("Enter Text", "Type here...", function(text)
-    print("Text entered:", text)
-end)
-```
-
-* **Notifications (Auto-Size)**
-
-```lua
-Window:Notify("Title", "Message", 3) -- Duration optional, default 3 seconds
-```
-
----
-
-## Advanced Features
-
-* **Auto-sizing Window**: Resizes dynamically based on content inside tabs.
-* **Animated Tab Switching**: Only one tab visible at a time; smooth color transition.
-* **Auto-sizing Tabs and Components**: Buttons, toggles, sliders, dropdowns, textboxes fit content width.
-* **Stackable Notifications**: Auto-size based on text length and wrap if needed; fade in/out.
-* **Unload Confirmation Popup**: Animated and interactive.
-* **Draggable Window** with Rounded Corners and Modern Dark Theme.
+  * Stackable notifications with smooth animations.
 
 ---
 
 ## Installation
 
-1. Place `UILib.lua` in your project directory or use the raw GitHub link.
-2. Require the library in a LocalScript:
+1. Place `UILib.lua` in your Roblox executor scripts folder.
+2. Load it via:
 
 ```lua
-local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HacksCreator102/UILIB/refs/heads/main/source.lua"))()
-local Window = UILib:CreateWindow({Title = "My Script"})
+local UILib = loadstring(game:HttpGet("YOUR_SCRIPT_URL"))()
 ```
 
 ---
 
-## Notes
+## Example Usage
 
-* Fully animated and responsive UI.
-* Components and notifications automatically size to fit content.
-* Designed for **ease of use** in Roblox LocalScripts.
-* Compatible with **modern dark-themed projects**.
+```lua
+local UILib = require(path_to_UILib)
+
+local Window = UILib:CreateWindow({Title = "My Script"})
+
+-- Create tabs
+local HomeTab = Window:CreateTab("Home")
+local AutoTab = Window:CreateTab("Auto")
+
+-- Add components
+HomeTab:CreateButton("Click Me", function()
+    print("Button clicked!")
+end)
+
+HomeTab:CreateToggle("Anti-AFK", Window.Settings.antiafk, function(state)
+    Window.Settings.antiafk = state
+    Window.SaveSettings(Window.Settings)
+end)
+
+HomeTab:CreateSlider("Speed", 1, 500, 100, function(value)
+    print("Slider value:", value)
+end)
+
+AutoTab:CreateDropdown("Select Option", {"A","B","C"}, function(option)
+    print("Selected:", option)
+end)
+
+AutoTab:CreateTextbox("Enter Name", "Player Name", function(text)
+    print("Textbox:", text)
+end)
+
+-- Notifications
+Window:Notify("Hello!", "This is a test notification.", 5)
+```
+
+---
+
+## Settings Persistence
+
+All toggles, sliders, and keybinds automatically save and load between sessions via the Executor Settings Manager.
