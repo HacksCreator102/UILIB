@@ -36,7 +36,7 @@ A **modern, animated, auto-sizing UI library** for Roblox, featuring full execut
 2. Load it via:
 
 ```lua
-local UILib = loadstring(game:HttpGet("YOUR_SCRIPT_URL"))()
+local UILib = loadstring(game:HttpGet("https://raw.githubusercontent.com/HacksCreator102/UILIB/refs/heads/main/source.lua"))()
 ```
 
 ---
