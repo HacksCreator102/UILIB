@@ -1,4 +1,4 @@
--- AdvancedScripter UI Library (Multi-Tab + UIListLayout + Unload Confirmation)
+-- AdvancedScripter UI Library (Single Active Tab + UIListLayout + Unload Confirmation)
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
@@ -127,7 +127,9 @@ function UILib:CreateWindow(arg1, arg2)
 		showUnloadConfirm()
 	end)
 
-	-- Tab System (Multi-tab support)
+	-- Tab System (Single Active Tab)
+	local activePage, activeButton
+
 	function window:CreateTab(arg)
 		local tabName = typeof(arg) == "table" and arg.Name or arg
 		local tab = {}
@@ -151,18 +153,25 @@ function UILib:CreateWindow(arg1, arg2)
 		PageLayout.Padding = UDim.new(0, 5)
 		PageLayout.Parent = Page
 
-		local toggled = false
 		Button.MouseButton1Click:Connect(function()
-			toggled = not toggled
-			Page.Visible = toggled
-			Button.BackgroundColor3 = toggled and Color3.fromRGB(100, 100, 100) or Color3.fromRGB(60,60,60)
+			if activePage then
+				activePage.Visible = false
+				activeButton.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			end
+
+			Page.Visible = true
+			Button.BackgroundColor3 = Color3.fromRGB(100,100,100)
+
+			activePage = Page
+			activeButton = Button
 		end)
 
-		-- Auto-open first tab
-		if #TabContainer:GetChildren() == 2 then
-			toggled = true
+		-- Auto-select first tab
+		if not activePage then
 			Page.Visible = true
-			Button.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+			Button.BackgroundColor3 = Color3.fromRGB(100,100,100)
+			activePage = Page
+			activeButton = Button
 		end
 
 		-- Components
